@@ -10,7 +10,7 @@
     <Authors>Genna Wingert</Authors>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageReleaseNotes>First release</PackageReleaseNotes>
-    <PackageVersion>1.0.*</PackageVersion>
+    <PackageVersion>1.0.0</PackageVersion>
   </PropertyGroup>
 
   <PropertyGroup>
