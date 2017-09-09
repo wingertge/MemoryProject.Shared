@@ -17,6 +17,6 @@ build:
   verbosity: minimal
 artifacts:
 - path: dist
-  name: dist.lib
+  name: MemoryCore
 after_build:
 - cmd: dotnet publish MemoryCore --output %appveyor_build_folder%\dist
