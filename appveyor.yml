@@ -19,4 +19,4 @@ artifacts:
 - path: dist
   name: dist.lib
 after_build:
-- cmd: dotnet publish src\CoreWebApplication1 --output %appveyor_build_folder%\dist
+- cmd: dotnet publish MemoryCore --output %appveyor_build_folder%\dist
