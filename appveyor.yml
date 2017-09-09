@@ -15,6 +15,10 @@ nuget:
   account_feed: true
 build:
   verbosity: minimal
+  publish_nuget: true
+  publish_nuget_symbols: true
+  include_nuget_references: true
+
 artifacts:
 - path: dist
   name: MemoryCore

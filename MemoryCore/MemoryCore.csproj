@@ -6,6 +6,11 @@
     <SccAuxPath>SAK</SccAuxPath>
     <SccLocalPath>SAK</SccLocalPath>
     <Configurations>Debug;Release;MemoryApi;MemoryClient.Web-Release</Configurations>
+    <PackageId>MemoryCore</PackageId>
+    <PackageVersion>1.0.0</PackageVersion>
+    <Authors>Genna Wingert</Authors>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageReleaseNotes>First release</PackageReleaseNotes>
   </PropertyGroup>
 
   <PropertyGroup>
