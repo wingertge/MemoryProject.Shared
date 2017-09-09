@@ -19,16 +19,9 @@ build:
   publish_nuget_symbols: true
   include_nuget_references: true
 
-artifacts:
-- path: dist
-  name: MemoryCore
-after_build:
-- cmd: dotnet publish MemoryCore --output %appveyor_build_folder%\dist
-
 deploy:
 - provider: NuGet
-  server: https://ci.appveyor.com/nuget/wingertge-9678l6k3j3o3
   api_key:
     secure: +1KK3+R5PcR/MlDWQeln3RPRG4JH+n1bL34KuJ4AUxE=
   symbol_server: https://ci.appveyor.com/nuget/wingertge-9678l6k3j3o3/api/v2/package
-  artifact: MemoryCore
+  artifact: /.*\.symbols\.nupkg/
