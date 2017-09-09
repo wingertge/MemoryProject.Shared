@@ -1,0 +1,21 @@
+version: 1.0.{build}
+configuration: Release
+init:
+- ps: '[System.IO.File]::AppendAllText("C:\Windows\System32\drivers\etc\hosts", "`n93.184.221.200  api.nuget.org")'
+  
+install:
+- cmd: >-
+    type c:\windows\system32\drivers\etc\hosts
+    
+    ping api.nuget.org
+    dotnet restore
+
+nuget:
+  account_feed: true
+build:
+  verbosity: minimal
+artifacts:
+- path: dist
+  name: dist.lib
+after_build:
+- cmd: dotnet publish src\CoreWebApplication1 --output %appveyor_build_folder%\dist
