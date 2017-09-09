@@ -5,7 +5,7 @@ configuration: Release
 init:
 - ps: '[System.IO.File]::AppendAllText("C:\Windows\System32\drivers\etc\hosts", "`n93.184.221.200  api.nuget.org")'
 
-beforeBuild:
+before_build:
 - ps: >-
     nuget restore
 
