@@ -5,8 +5,8 @@ namespace MemoryCore.JsonModels
     public class LoginModel : ValidatableModel
     {
         [Required]
-        public string Identifier { get; set; }
+        public virtual string Identifier { get; set; }
         [Required]
-        public string Password { get; set; }
+        public virtual string Password { get; set; }
     }
 }
