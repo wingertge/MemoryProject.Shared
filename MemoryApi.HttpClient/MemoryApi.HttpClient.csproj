@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <Configurations>Debug;Release</Configurations>
-    <PackageId>MemoryCore</PackageId>
+    <PackageId>MemoryApi.HttpClient</PackageId>
     <Authors>Genna Wingert</Authors>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageReleaseNotes>First release</PackageReleaseNotes>
