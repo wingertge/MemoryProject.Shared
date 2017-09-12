@@ -10,7 +10,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		appveyor.yml = appveyor.yml
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MemoryApi.HttpClient", "MemoryApi.HttpClient\MemoryApi.HttpClient.csproj", "{B7E38EDB-96B4-4A0B-B343-9891757F2163}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MemoryApi.HttpClient", "MemoryApi.HttpClient\MemoryApi.HttpClient.csproj", "{B7E38EDB-96B4-4A0B-B343-9891757F2163}"
+EndProject
+Project("{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}") = "MemoryApi.HttpClient.TS", "MemoryApi.HttpClient.TS\MemoryApi.HttpClient.TS.njsproj", "{6B2F3F04-5399-4938-AE82-A122C645B83B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -36,6 +38,14 @@ Global
 		{B7E38EDB-96B4-4A0B-B343-9891757F2163}.MemoryClient.Web-Release|Any CPU.Build.0 = Release|Any CPU
 		{B7E38EDB-96B4-4A0B-B343-9891757F2163}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B7E38EDB-96B4-4A0B-B343-9891757F2163}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6B2F3F04-5399-4938-AE82-A122C645B83B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6B2F3F04-5399-4938-AE82-A122C645B83B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6B2F3F04-5399-4938-AE82-A122C645B83B}.MemoryApi|Any CPU.ActiveCfg = Release|Any CPU
+		{6B2F3F04-5399-4938-AE82-A122C645B83B}.MemoryApi|Any CPU.Build.0 = Release|Any CPU
+		{6B2F3F04-5399-4938-AE82-A122C645B83B}.MemoryClient.Web-Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6B2F3F04-5399-4938-AE82-A122C645B83B}.MemoryClient.Web-Release|Any CPU.Build.0 = Release|Any CPU
+		{6B2F3F04-5399-4938-AE82-A122C645B83B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6B2F3F04-5399-4938-AE82-A122C645B83B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
