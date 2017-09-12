@@ -39,13 +39,9 @@ Global
 		{B7E38EDB-96B4-4A0B-B343-9891757F2163}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B7E38EDB-96B4-4A0B-B343-9891757F2163}.Release|Any CPU.Build.0 = Release|Any CPU
 		{6B2F3F04-5399-4938-AE82-A122C645B83B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6B2F3F04-5399-4938-AE82-A122C645B83B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6B2F3F04-5399-4938-AE82-A122C645B83B}.MemoryApi|Any CPU.ActiveCfg = Release|Any CPU
-		{6B2F3F04-5399-4938-AE82-A122C645B83B}.MemoryApi|Any CPU.Build.0 = Release|Any CPU
 		{6B2F3F04-5399-4938-AE82-A122C645B83B}.MemoryClient.Web-Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6B2F3F04-5399-4938-AE82-A122C645B83B}.MemoryClient.Web-Release|Any CPU.Build.0 = Release|Any CPU
 		{6B2F3F04-5399-4938-AE82-A122C645B83B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6B2F3F04-5399-4938-AE82-A122C645B83B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
