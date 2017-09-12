@@ -2,4 +2,3 @@
 csharp:
     output-folder: .
     namespace: MemoryApi.HttpClient
-models-name: MemoryCore.JsonModels
