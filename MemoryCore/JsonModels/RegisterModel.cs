@@ -11,7 +11,7 @@ namespace MemoryCore.JsonModels
         public virtual string Username { get; set; }
         [Required, DataType(DataType.Password), RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,15}$")]
         public virtual string Password { get; set; }
-        [Required, DataType(DataType.Password), Compare("Password")]
+        [Required, DataType(DataType.Password), Compare(nameof(Password))]
         public virtual string PasswordConfirm { get; set; }
     }
 }
