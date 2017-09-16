@@ -14,7 +14,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <DocumentationFile>bin\Debug\netstandard1.4\MemoryCore.xml</DocumentationFile>
+    <DocumentationFile>bin\Release\netstandard1.4\MemoryCore.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
