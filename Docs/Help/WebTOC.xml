@@ -1,0 +1,33 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<HelpTOC>
+
+  <HelpTOCNode Id="d2622a77-6b8f-4317-b8ae-135edfa41c22" Title="MemoryCore.JsonModels" Url="html/4c88f509-fcac-148b-a702-60cb7fbff6c3.htm">
+    <HelpTOCNode Id="c392507c-9a51-4cd7-939c-b00928417ce9" Title="ErrorCollection Class" Url="html/e0042833-99ba-c21b-a502-816bb409dbeb.htm">
+      <HelpTOCNode Title="ErrorCollection Constructor " Url="html/dd857ee2-cbc6-8ca6-6d17-2238ff9ea2c3.htm" />
+    </HelpTOCNode>
+    <HelpTOCNode Id="87821a71-b0fd-4f06-97b1-5d703cc399be" Title="LoginModel Class" Url="html/5463a9e0-9406-b8ef-63a0-b9cc3cd58f72.htm">
+      <HelpTOCNode Title="LoginModel Constructor " Url="html/95a881e7-1a86-a757-cf3b-0af95b58f345.htm" />
+      <HelpTOCNode Id="14fd5a04-bd4b-417b-b345-73c7fd3a725f" Title="LoginModel Properties" Url="html/14963ffc-a7b5-3e6a-de98-d1411a94d134.htm">
+        <HelpTOCNode Title="Identifier Property " Url="html/ffc9e79d-c65a-3ddb-0886-51575830b6c8.htm" />
+        <HelpTOCNode Title="Password Property " Url="html/9ce7d84a-2380-f0c9-154a-08599e43fc8f.htm" />
+      </HelpTOCNode>
+      <HelpTOCNode Title="LoginModel Methods" Url="html/73f8ad21-87e6-4992-cfd9-213156589887.htm" />
+    </HelpTOCNode>
+    <HelpTOCNode Id="5282b0a7-00c5-4af6-b28c-b468ab865bf3" Title="RegisterModel Class" Url="html/fa042d53-c4e8-026f-8388-8ef416e1dcc7.htm">
+      <HelpTOCNode Title="RegisterModel Constructor " Url="html/2deb1607-a798-3532-1349-e51454e42b0b.htm" />
+      <HelpTOCNode Id="2913c165-34db-4f27-8d7e-a9a71f5c5707" Title="RegisterModel Properties" Url="html/fba4abf3-17a0-1d1d-3cf4-768d56d4dc2e.htm">
+        <HelpTOCNode Title="Email Property " Url="html/fa5985ad-1254-c885-110c-1978ad624d9f.htm" />
+        <HelpTOCNode Title="Password Property " Url="html/c5c69354-7b36-5d61-24fc-1c49c81f00ab.htm" />
+        <HelpTOCNode Title="PasswordConfirm Property " Url="html/5bcadd90-c5c1-f0fa-8af6-ae9830decc5f.htm" />
+        <HelpTOCNode Title="Username Property " Url="html/05b385cd-b44f-fcea-b689-6691b94dc820.htm" />
+      </HelpTOCNode>
+      <HelpTOCNode Title="RegisterModel Methods" Url="html/3343997c-fafa-60fc-a15d-24edb3faa7ff.htm" />
+    </HelpTOCNode>
+    <HelpTOCNode Id="684bcb66-d0da-42cc-a205-d4024906b3c0" Title="ValidatableModel Class" Url="html/56ddac88-b06b-4d41-c444-f17b55917b45.htm">
+      <HelpTOCNode Title="ValidatableModel Constructor " Url="html/4ad3c4ad-cf0d-257f-85b3-e7b795bf9ff3.htm" />
+      <HelpTOCNode Id="ae1d6229-385b-4333-809f-f89a4d115a8c" Title="ValidatableModel Methods" Url="html/82f883fd-8d75-c934-eddb-bc5a75b803b2.htm">
+        <HelpTOCNode Title="IsValid Method " Url="html/37358948-3f04-5147-ee89-fb64b6f72845.htm" />
+      </HelpTOCNode>
+    </HelpTOCNode>
+  </HelpTOCNode>
+</HelpTOC>

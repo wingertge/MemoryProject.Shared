@@ -1,0 +1,101 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>MemoryCore</name>
+    </assembly>
+    <members>
+        <member name="T:MemoryCore.JsonModels.ErrorCollection">
+            <summary>
+            Semantic type for an error dictionary. Contents should be "field": "error"
+            </summary>
+        </member>
+        <member name="T:MemoryCore.JsonModels.LoginModel">
+            <summary>
+            Model for sending data to login function.
+            </summary>
+            <seealso cref="T:MemoryCore.JsonModels.ValidatableModel" />
+        </member>
+        <member name="P:MemoryCore.JsonModels.LoginModel.Identifier">
+            <summary>
+            The email/username to be used on login
+            </summary>
+            <value>The email/username.</value>
+        </member>
+        <member name="P:MemoryCore.JsonModels.LoginModel.Password">
+            <summary>
+            The password to be used on login
+            </summary>
+            <value>The password.</value>
+        </member>
+        <member name="T:MemoryCore.JsonModels.LoginProvider">
+            <summary>
+            Enum for supported login providers
+            </summary>
+        </member>
+        <member name="T:MemoryCore.JsonModels.LoginProviderModel">
+            <summary>
+            Model for data sent to provider login function.
+            </summary>
+            <seealso cref="T:MemoryCore.JsonModels.ValidatableModel" />
+        </member>
+        <member name="P:MemoryCore.JsonModels.LoginProviderModel.Provider">
+            <summary>
+            The provider to log in through.
+            </summary>
+            <value>The provider enum entry.</value>
+        </member>
+        <member name="P:MemoryCore.JsonModels.LoginProviderModel.AccessToken">
+            <summary>
+            The access token obtained on the client.
+            </summary>
+            <value>The access token.</value>
+        </member>
+        <member name="T:MemoryCore.JsonModels.RegisterModel">
+            <summary>
+            Data model to be sent to the register function.
+            </summary>
+            <seealso cref="T:MemoryCore.JsonModels.ValidatableModel" />
+        </member>
+        <member name="P:MemoryCore.JsonModels.RegisterModel.Email">
+            <summary>
+            The email used for registration.
+            </summary>
+            <value>The email.</value>
+        </member>
+        <member name="P:MemoryCore.JsonModels.RegisterModel.Username">
+            <summary>
+            The username used for registration.
+            </summary>
+            <value>The username.</value>
+        </member>
+        <member name="P:MemoryCore.JsonModels.RegisterModel.Password">
+            <summary>
+            The password used for registration.
+            </summary>
+            <value>The password.</value>
+        </member>
+        <member name="P:MemoryCore.JsonModels.RegisterModel.PasswordConfirm">
+            <summary>
+            Just in case validation for the password. If validated client side, send password again for this.
+            </summary>
+            <value>The password confirmation.</value>
+        </member>
+        <member name="T:MemoryCore.JsonModels.ValidatableModel">
+            <summary>
+            Base class for validated JSON models.
+            </summary>
+        </member>
+        <member name="M:MemoryCore.JsonModels.ValidatableModel.IsValid">
+            <summary>
+            Returns true if annotation conditions are valid.
+            </summary>
+            <returns><c>true</c> if this instance is valid; otherwise, <c>false</c>.</returns>
+        </member>
+        <member name="M:MemoryCore.JsonModels.ValidatableModel.Validate">
+            <summary>
+            Validates this instance.
+            </summary>
+            <returns>ErrorCollection.</returns>
+        </member>
+    </members>
+</doc>
