@@ -44,8 +44,3 @@ deploy:
     secure: +1KK3+R5PcR/MlDWQeln3RPRG4JH+n1bL34KuJ4AUxE=
   symbol_server: https://ci.appveyor.com/nuget/wingertge-9678l6k3j3o3/api/v2/package
   artifact: /.*\.symbols\.nupkg/
-- provider: GitHub
-  tag: docs-v$(appveyor_build_version)
-  auth_token:
-    secure: qzz0x5lxz07+TLZofk2ZWvb121FkP/wqFvsyS4lPSUKhglDqsld3EFgzxLapMA9N
-  artifact: XML Docs
