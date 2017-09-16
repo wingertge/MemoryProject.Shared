@@ -34,7 +34,7 @@ build:
   publish_nuget_symbols: true
 
 artifacts:
-- path: /.*\.xml
+- path: *\*.xml
   name: XML Docs
 
 
