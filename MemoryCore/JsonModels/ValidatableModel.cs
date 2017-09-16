@@ -5,14 +5,25 @@ using System.Linq;
 
 namespace MemoryCore.JsonModels
 {
+    /// <summary>
+    /// Base class for validated JSON models.
+    /// </summary>
     public class ValidatableModel
     {
+        /// <summary>
+        /// Returns true if annotation conditions are valid.
+        /// </summary>
+        /// <returns><c>true</c> if this instance is valid; otherwise, <c>false</c>.</returns>
         public bool IsValid()
         {
             var validationContext = new ValidationContext(this);
             return Validator.TryValidateObject(this, validationContext, null, true);
         }
 
+        /// <summary>
+        /// Validates this instance.
+        /// </summary>
+        /// <returns>ErrorCollection.</returns>
         public ErrorCollection Validate()
         {
             var validationContext = new ValidationContext(this);
