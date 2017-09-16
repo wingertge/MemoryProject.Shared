@@ -34,7 +34,7 @@ build:
   publish_nuget_symbols: true
 
 artifacts:
-- path: /.\**\*.xml
+- path: /.\MemoryCore\bin\**\*.xml
   name: XML Docs
 
 
@@ -49,8 +49,3 @@ deploy:
   auth_token:
     secure: qzz0x5lxz07+TLZofk2ZWvb121FkP/wqFvsyS4lPSUKhglDqsld3EFgzxLapMA9N
   artifact: XML Docs
-- provider: GitHub
-  tag: dll-v$(appveyor_build_version)
-  auth_token:
-    secure: qzz0x5lxz07+TLZofk2ZWvb121FkP/wqFvsyS4lPSUKhglDqsld3EFgzxLapMA9N
-  artifact: /.\**\netstandard1.4\*.dll
