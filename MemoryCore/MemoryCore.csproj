@@ -14,7 +14,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <DocumentationFile>bin\Release\netstandard1.4\MemoryCore.xml</DocumentationFile>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -23,4 +23,21 @@
   </ItemGroup>
 
   <Import Project="$(MSBuildSDKExtrasTargets)" Condition="Exists('$(MSBuildSDKExtrasTargets)')" />
+
+  <Target Name="IncludeDocFile" BeforeTargets="PrepareForPublish">
+    <ItemGroup Condition=" '$(DocumentationFile)' != '' ">
+      <_DocumentationFile Include="$(DocumentationFile)" />
+      <ContentWithTargetPath Include="@(_DocumentationFile->'%(FullPath)')"
+                             RelativePath="%(_DocumentationFile.Identity)"
+                             TargetPath="%(_DocumentationFile.Filename)%(_DocumentationFile.Extension)"
+                             CopyToPublishDirectory="PreserveNewest" />
+    </ItemGroup>
+  </Target>
+
+  <PropertyGroup>
+    <CopyAllFilesToSingleFolderForPackageDependsOn>
+      SwaggerFile;
+      $(CopyAllFilesToSingleFolderForPackageDependsOn);
+    </CopyAllFilesToSingleFolderForPackageDependsOn>
+  </PropertyGroup>
 </Project>
