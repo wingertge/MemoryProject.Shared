@@ -192,6 +192,12 @@ export interface IUsersClient {
      * @return successful registration and automatic login
      */
     register(body: RegisterModel): Promise<string>;
+    /**
+     * gets current user data
+     * @x_AuthToken User auth token.
+     * @return successful retrieval of user
+     */
+    getCurrentUserData(x_AuthToken?: string | null): Promise<User>;
 }
 
 export class UsersClient implements IUsersClient {
@@ -256,6 +262,54 @@ export class UsersClient implements IUsersClient {
             });
         }
         return Promise.resolve<string>(<any>null);
+    }
+
+    /**
+     * gets current user data
+     * @x_AuthToken User auth token.
+     * @return successful retrieval of user
+     */
+    getCurrentUserData(x_AuthToken?: string | null): Promise<User> {
+        let url_ = this.baseUrl + "/users/current-user-data";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ = <RequestInit>{
+            method: "GET",
+            headers: {
+                "X-AuthToken": x_AuthToken, 
+                "Content-Type": "application/json", 
+                "Accept": "text/plain"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetCurrentUserData(_response);
+        });
+    }
+
+    protected processGetCurrentUserData(response: Response): Promise<User> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v, k) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = resultData200 ? User.fromJS(resultData200) : new User();
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = resultData400 !== undefined ? resultData400 : <any>null;
+            return throwException("A server error occurred.", status, _responseText, _headers, result400);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<User>(<any>null);
     }
 }
 
@@ -411,6 +465,256 @@ export interface IRegisterModel {
     password?: string | undefined;
     /** password validation */
     passwordAgain?: string | undefined;
+}
+
+export class User implements IUser {
+    username?: string | undefined;
+    name: FullName = new FullName();
+    userAddress: Address = new Address();
+    birthDate: number;
+    emailVerified: boolean;
+    email?: string | undefined;
+    gender?: string | undefined;
+    locale?: string | undefined;
+    phoneVerified: boolean;
+    phoneNumber?: string | undefined;
+    profilePicture?: string | undefined;
+    displayName?: string | undefined;
+    updatedAt: number;
+    zoneInfo?: string | undefined;
+    roles?: string[] | undefined;
+
+    constructor(data?: IUser) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(data?: any) {
+        if (data) {
+            this.username = data["Username"];
+            this.name = data["Name"] ? FullName.fromJS(data["Name"]) : new FullName();
+            this.userAddress = data["UserAddress"] ? Address.fromJS(data["UserAddress"]) : new Address();
+            this.birthDate = data["BirthDate"];
+            this.emailVerified = data["EmailVerified"];
+            this.email = data["Email"];
+            this.gender = data["Gender"];
+            this.locale = data["Locale"];
+            this.phoneVerified = data["PhoneVerified"];
+            this.phoneNumber = data["PhoneNumber"];
+            this.profilePicture = data["ProfilePicture"];
+            this.displayName = data["DisplayName"];
+            this.updatedAt = data["UpdatedAt"];
+            this.zoneInfo = data["ZoneInfo"];
+            if (data["Roles"] && data["Roles"].constructor === Array) {
+                this.roles = [];
+                for (let item of data["Roles"])
+                    this.roles.push(item);
+            }
+        }
+    }
+
+    static fromJS(data: any): User {
+        let result = new User();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["Username"] = this.username;
+        data["Name"] = this.name ? this.name.toJSON() : <any>undefined;
+        data["UserAddress"] = this.userAddress ? this.userAddress.toJSON() : <any>undefined;
+        data["BirthDate"] = this.birthDate;
+        data["EmailVerified"] = this.emailVerified;
+        data["Email"] = this.email;
+        data["Gender"] = this.gender;
+        data["Locale"] = this.locale;
+        data["PhoneVerified"] = this.phoneVerified;
+        data["PhoneNumber"] = this.phoneNumber;
+        data["ProfilePicture"] = this.profilePicture;
+        data["DisplayName"] = this.displayName;
+        data["UpdatedAt"] = this.updatedAt;
+        data["ZoneInfo"] = this.zoneInfo;
+        if (this.roles && this.roles.constructor === Array) {
+            data["Roles"] = [];
+            for (let item of this.roles)
+                data["Roles"].push(item);
+        }
+        return data; 
+    }
+
+    clone() {
+        const json = this.toJSON();
+        let result = new User();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IUser {
+    username?: string | undefined;
+    name: FullName;
+    userAddress: Address;
+    birthDate: number;
+    emailVerified: boolean;
+    email?: string | undefined;
+    gender?: string | undefined;
+    locale?: string | undefined;
+    phoneVerified: boolean;
+    phoneNumber?: string | undefined;
+    profilePicture?: string | undefined;
+    displayName?: string | undefined;
+    updatedAt: number;
+    zoneInfo?: string | undefined;
+    roles?: string[] | undefined;
+}
+
+export class ValueType implements IValueType {
+
+    constructor(data?: IValueType) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(data?: any) {
+        if (data) {
+        }
+    }
+
+    static fromJS(data: any): ValueType {
+        let result = new ValueType();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        return data; 
+    }
+
+    clone() {
+        const json = this.toJSON();
+        let result = new ValueType();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IValueType {
+}
+
+export class FullName extends ValueType implements IFullName {
+    firstName?: string | undefined;
+    middleName?: string | undefined;
+    lastName?: string | undefined;
+
+    constructor(data?: IFullName) {
+        super(data);
+    }
+
+    init(data?: any) {
+        super.init(data);
+        if (data) {
+            this.firstName = data["FirstName"];
+            this.middleName = data["MiddleName"];
+            this.lastName = data["LastName"];
+        }
+    }
+
+    static fromJS(data: any): FullName {
+        let result = new FullName();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["FirstName"] = this.firstName;
+        data["MiddleName"] = this.middleName;
+        data["LastName"] = this.lastName;
+        super.toJSON(data);
+        return data; 
+    }
+
+    clone() {
+        const json = this.toJSON();
+        let result = new FullName();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IFullName extends IValueType {
+    firstName?: string | undefined;
+    middleName?: string | undefined;
+    lastName?: string | undefined;
+}
+
+export class Address extends ValueType implements IAddress {
+    line1?: string | undefined;
+    line2?: string | undefined;
+    country?: string | undefined;
+    postalCode?: string | undefined;
+    city?: string | undefined;
+    locality?: string | undefined;
+
+    constructor(data?: IAddress) {
+        super(data);
+    }
+
+    init(data?: any) {
+        super.init(data);
+        if (data) {
+            this.line1 = data["Line1"];
+            this.line2 = data["Line2"];
+            this.country = data["Country"];
+            this.postalCode = data["PostalCode"];
+            this.city = data["City"];
+            this.locality = data["Locality"];
+        }
+    }
+
+    static fromJS(data: any): Address {
+        let result = new Address();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["Line1"] = this.line1;
+        data["Line2"] = this.line2;
+        data["Country"] = this.country;
+        data["PostalCode"] = this.postalCode;
+        data["City"] = this.city;
+        data["Locality"] = this.locality;
+        super.toJSON(data);
+        return data; 
+    }
+
+    clone() {
+        const json = this.toJSON();
+        let result = new Address();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IAddress extends IValueType {
+    line1?: string | undefined;
+    line2?: string | undefined;
+    country?: string | undefined;
+    postalCode?: string | undefined;
+    city?: string | undefined;
+    locality?: string | undefined;
 }
 
 export class SwaggerException extends Error {
