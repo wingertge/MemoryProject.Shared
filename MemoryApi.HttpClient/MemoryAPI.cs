@@ -4,7 +4,7 @@
 // </auto-generated>
 //----------------------
 
-using MemoryCore;
+using MemoryCore.JsonModels;
 
 namespace MemoryApi.HttpClient
 {
