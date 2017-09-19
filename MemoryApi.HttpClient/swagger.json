@@ -185,11 +185,8 @@
               "$ref" : "#/definitions/User"
             }
           },
-          "400" : {
-            "description" : "auth token failed to validate",
-            "schema" : {
-              "type" : "string"
-            }
+          "403" : {
+            "description" : "auth token failed to validate"
           }
         }
       }
@@ -198,8 +195,8 @@
       "get" : {
         "tags" : [ "users" ],
         "summary" : "gets active user lessons",
-        "operationId" : "lessons_List",
-        "description" : "Fetches list of user active lessons sorted by language\n",
+        "operationId" : "lessons_GetList",
+        "description" : "Fetches list of user active lessons sorted by language.\n",
         "produces" : [ "application/json" ],
         "parameters" : [ {
           "in" : "header",
@@ -218,6 +215,38 @@
             "schema" : {
               "$ref" : "#/definitions/LessonList"
             }
+          },
+          "403" : {
+            "description" : "auth token failed to validate"
+          }
+        }
+      }
+    },
+    "/lessons/languages-list" : {
+      "get" : {
+        "tags" : [ "users" ],
+        "summary" : "gets all lessons used by user",
+        "operationId" : "lessons_GetLanguages",
+        "description" : "Fetches list of all languages used by user.\n",
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "in" : "header",
+          "name" : "X-AuthToken",
+          "type" : "string",
+          "description" : "User auth token."
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "successful query",
+            "schema" : {
+              "type" : "array",
+              "items" : {
+                "$ref" : "#/definitions/Language"
+              }
+            }
+          },
+          "403" : {
+            "description" : "auth token failed to validate"
           }
         }
       }
