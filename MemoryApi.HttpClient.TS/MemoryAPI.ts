@@ -278,7 +278,7 @@ export class UsersClient implements IUsersClient {
             headers: {
                 "X-AuthToken": x_AuthToken, 
                 "Content-Type": "application/json", 
-                "Accept": "text/plain"
+                "Accept": "application/json"
             }
         };
 
@@ -310,6 +310,71 @@ export class UsersClient implements IUsersClient {
             });
         }
         return Promise.resolve<User>(<any>null);
+    }
+}
+
+export interface ILessonsClient {
+    /**
+     * gets active user lessons
+     * @x_AuthToken User auth token.
+     * @language IETF Tag for requested language.
+     * @return successful query
+     */
+    list(x_AuthToken?: string | null, language?: string | null): Promise<LessonList>;
+}
+
+export class LessonsClient implements ILessonsClient {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+        this.http = http ? http : <any>window;
+        this.baseUrl = baseUrl ? baseUrl : "";
+    }
+
+    /**
+     * gets active user lessons
+     * @x_AuthToken User auth token.
+     * @language IETF Tag for requested language.
+     * @return successful query
+     */
+    list(x_AuthToken?: string | null, language?: string | null): Promise<LessonList> {
+        let url_ = this.baseUrl + "/lessons/list?";
+        if (language !== undefined)
+            url_ += "language=" + encodeURIComponent("" + language) + "&"; 
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ = <RequestInit>{
+            method: "GET",
+            headers: {
+                "X-AuthToken": x_AuthToken, 
+                "Content-Type": "application/json", 
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processList(_response);
+        });
+    }
+
+    protected processList(response: Response): Promise<LessonList> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v, k) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = resultData200 ? LessonList.fromJS(resultData200) : new LessonList();
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<LessonList>(<any>null);
     }
 }
 
@@ -715,6 +780,203 @@ export interface IAddress extends IValueType {
     postalCode?: string | undefined;
     city?: string | undefined;
     locality?: string | undefined;
+}
+
+export class Language implements ILanguage {
+    iETFTag?: string | undefined;
+    unlocalizedName?: string | undefined;
+    unlocalizedCountryName?: string | undefined;
+    nativeName?: string | undefined;
+    nativeCountryName?: string | undefined;
+
+    constructor(data?: ILanguage) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(data?: any) {
+        if (data) {
+            this.iETFTag = data["IETFTag"];
+            this.unlocalizedName = data["UnlocalizedName"];
+            this.unlocalizedCountryName = data["UnlocalizedCountryName"];
+            this.nativeName = data["NativeName"];
+            this.nativeCountryName = data["NativeCountryName"];
+        }
+    }
+
+    static fromJS(data: any): Language {
+        let result = new Language();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["IETFTag"] = this.iETFTag;
+        data["UnlocalizedName"] = this.unlocalizedName;
+        data["UnlocalizedCountryName"] = this.unlocalizedCountryName;
+        data["NativeName"] = this.nativeName;
+        data["NativeCountryName"] = this.nativeCountryName;
+        return data; 
+    }
+
+    clone() {
+        const json = this.toJSON();
+        let result = new Language();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface ILanguage {
+    iETFTag?: string | undefined;
+    unlocalizedName?: string | undefined;
+    unlocalizedCountryName?: string | undefined;
+    nativeName?: string | undefined;
+    nativeCountryName?: string | undefined;
+}
+
+export class LanguagePair implements ILanguagePair {
+    from?: Language | undefined;
+    to?: Language | undefined;
+
+    constructor(data?: ILanguagePair) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(data?: any) {
+        if (data) {
+            this.from = data["From"] ? Language.fromJS(data["From"]) : <any>undefined;
+            this.to = data["To"] ? Language.fromJS(data["To"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): LanguagePair {
+        let result = new LanguagePair();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["From"] = this.from ? this.from.toJSON() : <any>undefined;
+        data["To"] = this.to ? this.to.toJSON() : <any>undefined;
+        return data; 
+    }
+
+    clone() {
+        const json = this.toJSON();
+        let result = new LanguagePair();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface ILanguagePair {
+    from?: Language | undefined;
+    to?: Language | undefined;
+}
+
+export class Lesson implements ILesson {
+    id?: string | undefined;
+    from?: string | undefined;
+    reading?: string | undefined;
+    to?: string | undefined;
+    languages?: LanguagePair | undefined;
+
+    constructor(data?: ILesson) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(data?: any) {
+        if (data) {
+            this.id = data["Id"];
+            this.from = data["From"];
+            this.reading = data["Reading"];
+            this.to = data["To"];
+            this.languages = data["Languages"] ? LanguagePair.fromJS(data["Languages"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): Lesson {
+        let result = new Lesson();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["Id"] = this.id;
+        data["From"] = this.from;
+        data["Reading"] = this.reading;
+        data["To"] = this.to;
+        data["Languages"] = this.languages ? this.languages.toJSON() : <any>undefined;
+        return data; 
+    }
+
+    clone() {
+        const json = this.toJSON();
+        let result = new Lesson();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface ILesson {
+    id?: string | undefined;
+    from?: string | undefined;
+    reading?: string | undefined;
+    to?: string | undefined;
+    languages?: LanguagePair | undefined;
+}
+
+export class LessonList extends Lesson[] implements ILessonList {
+
+    constructor(data?: ILessonList) {
+        super(data);
+    }
+
+    init(data?: any) {
+        super.init(data);
+        if (data) {
+        }
+    }
+
+    static fromJS(data: any): LessonList {
+        let result = new LessonList();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        super.toJSON(data);
+        return data; 
+    }
+
+    clone() {
+        const json = this.toJSON();
+        let result = new LessonList();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface ILessonList extends ILesson[] {
 }
 
 export class SwaggerException extends Error {
