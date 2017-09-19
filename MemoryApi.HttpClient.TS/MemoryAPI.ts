@@ -297,12 +297,9 @@ export class UsersClient implements IUsersClient {
             result200 = resultData200 ? User.fromJS(resultData200) : new User();
             return result200;
             });
-        } else if (status === 400) {
+        } else if (status === 403) {
             return response.text().then((_responseText) => {
-            let result400: any = null;
-            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result400 = resultData400 !== undefined ? resultData400 : <any>null;
-            return throwException("A server error occurred.", status, _responseText, _headers, result400);
+            return throwException("A server error occurred.", status, _responseText, _headers);
             });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
@@ -320,7 +317,13 @@ export interface ILessonsClient {
      * @language IETF Tag for requested language.
      * @return successful query
      */
-    list(x_AuthToken?: string | null, language?: string | null): Promise<LessonList>;
+    getList(x_AuthToken?: string | null, language?: string | null): Promise<LessonList>;
+    /**
+     * gets all lessons used by user
+     * @x_AuthToken User auth token.
+     * @return successful query
+     */
+    getLanguages(x_AuthToken?: string | null): Promise<Language[]>;
 }
 
 export class LessonsClient implements ILessonsClient {
@@ -339,7 +342,7 @@ export class LessonsClient implements ILessonsClient {
      * @language IETF Tag for requested language.
      * @return successful query
      */
-    list(x_AuthToken?: string | null, language?: string | null): Promise<LessonList> {
+    getList(x_AuthToken?: string | null, language?: string | null): Promise<LessonList> {
         let url_ = this.baseUrl + "/lessons/list?";
         if (language !== undefined)
             url_ += "language=" + encodeURIComponent("" + language) + "&"; 
@@ -355,11 +358,11 @@ export class LessonsClient implements ILessonsClient {
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processList(_response);
+            return this.processGetList(_response);
         });
     }
 
-    protected processList(response: Response): Promise<LessonList> {
+    protected processGetList(response: Response): Promise<LessonList> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v, k) => _headers[k] = v); };
         if (status === 200) {
@@ -369,12 +372,65 @@ export class LessonsClient implements ILessonsClient {
             result200 = resultData200 ? LessonList.fromJS(resultData200) : new LessonList();
             return result200;
             });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            return throwException("A server error occurred.", status, _responseText, _headers);
+            });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
         return Promise.resolve<LessonList>(<any>null);
+    }
+
+    /**
+     * gets all lessons used by user
+     * @x_AuthToken User auth token.
+     * @return successful query
+     */
+    getLanguages(x_AuthToken?: string | null): Promise<Language[]> {
+        let url_ = this.baseUrl + "/lessons/languages-list";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ = <RequestInit>{
+            method: "GET",
+            headers: {
+                "X-AuthToken": x_AuthToken, 
+                "Content-Type": "application/json", 
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetLanguages(_response);
+        });
+    }
+
+    protected processGetLanguages(response: Response): Promise<Language[]> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v, k) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (resultData200 && resultData200.constructor === Array) {
+                result200 = [];
+                for (let item of resultData200)
+                    result200.push(Language.fromJS(item));
+            }
+            return result200;
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            return throwException("A server error occurred.", status, _responseText, _headers);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<Language[]>(<any>null);
     }
 }
 
