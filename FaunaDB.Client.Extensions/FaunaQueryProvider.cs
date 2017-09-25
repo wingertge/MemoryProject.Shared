@@ -43,7 +43,7 @@ namespace FaunaDB.Extensions
 
         public TResult Execute<TResult>(Expression expression)
         {
-            var result = _client.Query(FaunaQueryParser.Parse(expression)).Result;
+            var result = _client.Query(FaunaQueryParser.Parse(_selector, expression)).Result;
             return result.To<TResult>().Value;
         }
     }
