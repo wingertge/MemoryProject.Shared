@@ -8,7 +8,7 @@ using FaunaDB.Query;
 
 namespace FaunaDB.Extensions
 {
-    public class FaunaQueryableData<TData> : IFaunaQueryable<TData>
+    public class FaunaQueryableData<TData> : IQueryable<TData>
     {
         public IEnumerator<TData> GetEnumerator()
         {
