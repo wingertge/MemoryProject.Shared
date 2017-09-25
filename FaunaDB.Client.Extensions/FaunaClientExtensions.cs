@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using FaunaDB.Client;
@@ -9,9 +10,9 @@ namespace FaunaDB.Extensions
 {
     public static class FaunaClientExtensions
     {
-        public static IQueryable<T> Query<T>(this FaunaClient client, string index, params Expr[] args)
+        public static IQueryable<IEnumerable<T>> Query<T>(this FaunaClient client, string index, params Expr[] args)
         {
-            return new FaunaQueryableData<T>(client, Match(Index(index), args));
+            return new FaunaQueryableData<IEnumerable<T>>(client, Match(Index(index), args));
         }
 
         public static IQueryable<T> Query<T>(this FaunaClient client, string @ref)
