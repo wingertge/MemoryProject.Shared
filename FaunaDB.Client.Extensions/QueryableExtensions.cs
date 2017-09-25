@@ -36,9 +36,9 @@ namespace FaunaDB.Extensions
             return result.FirstOrDefault();
         }
 
-        public static Task<IEnumerable<T>> ToListAsync<T>(this IQueryable<T> source)
+        public static Task<List<T>> ToListAsync<T>(this IQueryable<T> source)
         {
-            return ExecuteAsync<T, IEnumerable<T>>(source);
+            return ExecuteAsync<T, List<T>>(source);
         }
 
         private static Task<TTarget> ExecuteAsync<TSource, TTarget>(IQueryable<TSource> source)
