@@ -27,6 +27,7 @@
 
   <ItemGroup>
     <PackageReference Include="FaunaDB.Client" Version="1.2.0" />
+    <PackageReference Include="System.ValueTuple" Version="4.4.0" />
   </ItemGroup>
 
   <ItemGroup>
