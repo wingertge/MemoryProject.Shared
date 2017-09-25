@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace FaunaDB.Extensions
 {
@@ -23,6 +25,18 @@ namespace FaunaDB.Extensions
                 Expression.Constant(size),
                 Expression.Constant(timeStamp) }
             ));
+        }
+
+        public static Task<T> FirstOrDefaultAsync<T>(this IFaunaQueryable<IEnumerable<T>> source)
+        {
+            return ExecuteAsync<IEnumerable<T>, T>(source);
+        }
+
+        private static Task<TTarget> ExecuteAsync<TSource, TTarget>(IFaunaQueryable<TSource> source)
+        {
+            return source.Provider is FaunaQueryProvider provider
+                ? provider.ExecuteAsync<TTarget>(source.Expression)
+                : Task.Run(() => source.Provider.Execute<TTarget>(source.Expression));
         }
     }
 }

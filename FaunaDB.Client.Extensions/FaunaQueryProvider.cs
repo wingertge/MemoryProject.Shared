@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Threading.Tasks;
 using FaunaDB.Client;
 using FaunaDB.Query;
 
@@ -44,6 +45,12 @@ namespace FaunaDB.Extensions
         public TResult Execute<TResult>(Expression expression)
         {
             var result = _client.Query(FaunaQueryParser.Parse(_selector, expression)).Result;
+            return result.To<TResult>().Value;
+        }
+
+        public async Task<TResult> ExecuteAsync<TResult>(Expression expression)
+        {
+            var result = await _client.Query(FaunaQueryParser.Parse(_selector, expression));
             return result.To<TResult>().Value;
         }
     }
