@@ -20,11 +20,13 @@ namespace FaunaDB.Extensions
             return new FaunaQueryableData<T>(source.Provider, Expression.Call(
                 instance: null,
                 method: PaginateMethodInfo.MakeGenericMethod(typeof(T)),
-                arguments: new [] { source.Expression,
-                Expression.Constant(fromRef),
-                Expression.Constant(sortDirection),
-                Expression.Constant(size),
-                Expression.Constant(timeStamp) }
+                arguments: new [] {
+                    source.Expression,
+                    Expression.Constant(fromRef),
+                    Expression.Constant(sortDirection),
+                    Expression.Constant(size),
+                    Expression.Constant(timeStamp)
+                }
             ));
         }
 
