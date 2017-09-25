@@ -32,13 +32,25 @@ namespace FaunaDB.Extensions
 
         public static async Task<T> FirstOrDefaultAsync<T>(this IQueryable<T> source)
         {
-            var result = await ExecuteAsync<T, IEnumerable<T>>(source.Paginate(size: 1));
+            var result = await ExecuteAsync<T, IEnumerable<T>>(source.Paginate(size: 1).GetAll());
             return result.FirstOrDefault();
         }
 
         public static Task<List<T>> ToListAsync<T>(this IQueryable<T> source)
         {
-            return ExecuteAsync<T, List<T>>(source);
+            return ExecuteAsync<T, List<T>>(source.GetAll());
+        }
+
+        internal static readonly MethodInfo GetAllMethodInfo =
+            typeof(QueryableExtensions).GetTypeInfo().GetDeclaredMethod(nameof(GetAll));
+
+        internal static IQueryable<T> GetAll<T>(this IQueryable<T> source)
+        {
+            return source.Provider.CreateQuery<T>(Expression.Call(
+                instance: null,
+                method: GetAllMethodInfo.MakeGenericMethod(typeof(T)),
+                arguments: source.Expression
+            ));
         }
 
         private static Task<TTarget> ExecuteAsync<TSource, TTarget>(IQueryable<TSource> source)

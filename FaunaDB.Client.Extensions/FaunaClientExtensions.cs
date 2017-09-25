@@ -12,7 +12,7 @@ namespace FaunaDB.Extensions
     {
         public static IQueryable<T> Query<T>(this FaunaClient client, string index, params Expr[] args)
         {
-            return new FaunaQueryableData<T>(client, Match(Index(index), args));
+            return new FaunaQueryableData<T>(client, Map(Match(Index(index), args), @ref => Get(@ref)));
         }
 
         public static IQueryable<T> Query<T>(this FaunaClient client, string @ref)
@@ -20,21 +20,38 @@ namespace FaunaDB.Extensions
             return new FaunaQueryableData<T>(client, Get(Ref(@ref)));
         }
 
-        public static Task Create(this FaunaClient client, object obj)
+        public static async Task<T> Create<T>(this FaunaClient client, T obj)
         {
             var objType = obj.GetType();
             var className = string.Concat(objType.Name.Select((x, i) => i > 0 && char.IsUpper(x) ? "_" + x.ToString() : x.ToString())).ToLower();
-            return client.Query(Language.Create(Ref(Class(className), 1), Obj("data", obj.ToFaunaObj())));
+            var result = await client.Query(Language.Create(Ref(Class(className), 1), Obj("data", obj.ToFaunaObj())));
+            return obj is IReferenceType ? result.To<T>().Value : result.To<FaunaResult<T>>().Value.Data;
         }
 
-        public static Task Update(this FaunaClient client, IReferenceType obj)
+        public static Task<T> Update<T>(this FaunaClient client, T obj) where T : IReferenceType
         {
             return client.Update(obj, obj.Id);
         }
 
-        public static Task Update(this FaunaClient client, object obj, string id)
+        public static async Task<T> Update<T>(this FaunaClient client, T obj, string id)
         {
-            return client.Query(Language.Update(Ref(id), obj.ToFaunaObj()));
+            var result = await client.Query(Language.Update(Ref(id), obj.ToFaunaObj()));
+            return obj is IReferenceType ? result.To<T>().Value : result.To<FaunaResult<T>>().Value.Data;
+        }
+
+        public static Task<T> Upsert<T>(this FaunaClient client, T obj) where T : IReferenceType
+        {
+            return client.Upsert<T>(obj, obj.Id);
+        }
+
+        public static async Task<T> Upsert<T>(this FaunaClient client, T obj, string id)
+        {
+            var objType = obj.GetType();
+            var className = string.Concat(objType.Name.Select((x, i) => i > 0 && char.IsUpper(x) ? "_" + x.ToString() : x.ToString())).ToLower();
+            var result = await client.Query(If(Exists(id),
+                Language.Update(id, obj.ToFaunaObj()),
+                Language.Create(Ref(Class(className), 1), obj.ToFaunaObj())));
+            return obj is IReferenceType ? result.To<T>().Value : result.To<FaunaResult<T>>().Value.Data;
         }
 
         public static Task Delete(this FaunaClient client, IReferenceType obj)

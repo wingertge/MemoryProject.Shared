@@ -64,7 +64,7 @@ namespace FaunaDB.Extensions
             return Language.Obj(fields);
         }
 
-        private static Expr ToFaunaObjOrPrimitive(this object obj)
+        internal static Expr ToFaunaObjOrPrimitive(this object obj)
         {
             switch (Type.GetTypeCode(obj.GetType()))
             {
