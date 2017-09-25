@@ -36,6 +36,11 @@ namespace FaunaDB.Extensions
             return result.FirstOrDefault();
         }
 
+        public static Task<IEnumerable<T>> ToListAsync<T>(this IQueryable<T> source)
+        {
+            return ExecuteAsync<T, IEnumerable<T>>(source);
+        }
+
         private static Task<TTarget> ExecuteAsync<TSource, TTarget>(IQueryable<TSource> source)
         {
             return source.Provider is FaunaQueryProvider provider

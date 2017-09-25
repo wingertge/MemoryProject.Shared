@@ -51,7 +51,7 @@ namespace FaunaDB.Extensions
         public async Task<TResult> ExecuteAsync<TResult>(Expression expression)
         {
             var result = await _client.Query(FaunaQueryParser.Parse(_selector, expression));
-            return result.To<TResult>().Value;
+            return typeof(IReferenceType).IsAssignableFrom(typeof(TResult)) ? result.To<TResult>().Value : result.To<FaunaResult<TResult>>().Value.Data;
         }
     }
 }
