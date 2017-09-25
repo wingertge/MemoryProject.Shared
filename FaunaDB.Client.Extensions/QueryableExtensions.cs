@@ -15,7 +15,7 @@ namespace FaunaDB.Extensions
             typeof(QueryableExtensions).GetTypeInfo().GetDeclaredMethod(nameof(Paginate));
 
         public static IQueryable<T> Paginate<T>(this IQueryable<T> source, string fromRef = null,
-            ListSortDirection sortDirection = ListSortDirection.Ascending, int size = 16, DateTime? timeStamp = null) where T : IEnumerable
+            ListSortDirection sortDirection = ListSortDirection.Ascending, int size = 16, DateTime? timeStamp = null)
         {
             return new FaunaQueryableData<T>(source.Provider, Expression.Call(
                 instance: null,
@@ -28,9 +28,10 @@ namespace FaunaDB.Extensions
             ));
         }
 
-        public static Task<T> FirstOrDefaultAsync<T>(this IQueryable<IEnumerable<T>> source)
+        public static async Task<T> FirstOrDefaultAsync<T>(this IQueryable<T> source)
         {
-            return ExecuteAsync<IEnumerable<T>, T>(source);
+            var result = await ExecuteAsync<T, IEnumerable<T>>(source.Paginate(size: 1));
+            return result.FirstOrDefault();
         }
 
         private static Task<TTarget> ExecuteAsync<TSource, TTarget>(IQueryable<TSource> source)
