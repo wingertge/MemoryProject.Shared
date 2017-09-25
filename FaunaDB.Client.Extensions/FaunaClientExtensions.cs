@@ -63,5 +63,13 @@ namespace FaunaDB.Extensions
         {
             return client.Query(Language.Delete(Ref(id)));
         }
+
+        public static async Task<T> Get<T>(this FaunaClient client, string @ref)
+        {
+            var result = await client.Query(Language.Get(Ref(@ref)));
+            return typeof(IReferenceType).IsAssignableFrom(typeof(T))
+                ? result.To<T>().Value
+                : result.To<FaunaResult<T>>().Value.Data;
+        }
     }
 }
