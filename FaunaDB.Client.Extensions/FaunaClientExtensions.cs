@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -31,6 +32,27 @@ namespace FaunaDB.Extensions
             var indexName = indexAttr.Name;
 
             return client.Query<T>(indexName, args);
+        }
+
+        public static IQueryable<T> Query<T>(this FaunaClient client, params Expression<Func<T, bool>>[] indexes)
+        {
+            var matchExprs = new List<Expr>();
+
+            foreach (var index in indexes)
+            {
+                if (!(index.Body is BinaryExpression binary)) throw new ArgumentException("Index selector must be ==.");
+
+                var constant = binary.Left is ConstantExpression constExp ? constExp : (ConstantExpression)binary.Right;
+                var indexSelector = binary.Right is MemberExpression mExp ? mExp : (MemberExpression)binary.Left;
+                var propInfo = indexSelector.GetPropertyInfo();
+                var indexAttr = propInfo.GetCustomAttribute<IndexedAttribute>();
+                if (indexAttr == null) throw new ArgumentException("Can't use unindexed property as selector!", nameof(index));
+                var args = ObjToArray(constant.Value);
+                var indexName = indexAttr.Name;
+                matchExprs.Add(Match(Index(indexName), args));
+            }
+
+            return new FaunaQueryableData<T>(client, Map(Union(matchExprs.ToArray()), @ref => Language.Get(@ref)));
         }
 
         public static IQueryable<T> Query<T>(this FaunaClient client, Expression<Func<T, object>> index,
