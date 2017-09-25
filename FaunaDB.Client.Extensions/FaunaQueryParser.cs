@@ -36,7 +36,7 @@ namespace FaunaDB.Extensions
                     current = Language.Select(Language.Arr(propName.Split('.').ToExprArray()), rest);
                     break;
                 case "Map":
-                    current = Map(rest, (dynamic) args[0]);
+                    current = Language.Map(rest, (dynamic) args[0]);
                     break;
                 case "Paginate":
                     var fromRef = ((ConstantExpression) args[0]).Value.ToString();
