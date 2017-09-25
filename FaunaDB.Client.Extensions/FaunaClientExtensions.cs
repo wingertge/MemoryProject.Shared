@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Text.RegularExpressions;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using FaunaDB.Client;
 using FaunaDB.Query;
@@ -12,12 +10,12 @@ namespace FaunaDB.Extensions
     {
         public static IQueryable<T> Query<T>(this FaunaClient client, string index, params Expr[] args)
         {
-            return new FaunaQueryableData<T>(client, Map(Match(Index(index), args), @ref => Get(@ref)));
+            return new FaunaQueryableData<T>(client, Map(Match(Index(index), args), @ref => Language.Get(@ref)));
         }
 
         public static IQueryable<T> Query<T>(this FaunaClient client, string @ref)
         {
-            return new FaunaQueryableData<T>(client, Get(Ref(@ref)));
+            return new FaunaQueryableData<T>(client, Language.Get(Ref(@ref)));
         }
 
         public static async Task<T> Create<T>(this FaunaClient client, T obj)
