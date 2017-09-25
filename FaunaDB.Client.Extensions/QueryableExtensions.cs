@@ -38,7 +38,13 @@ namespace FaunaDB.Extensions
 
         public static Task<List<T>> ToListAsync<T>(this IQueryable<T> source)
         {
-            return ExecuteAsync<T, List<T>>(source.GetAll());
+            return ExecuteAsync<T, List<T>>(source);
+        }
+
+        public static async Task<bool> AnyAsync<T>(this IQueryable<T> source)
+        {
+            var result = await ExecuteAsync<T, IEnumerable<T>>(source.Paginate(size: 1));
+            return result.Any();
         }
 
         internal static readonly MethodInfo GetAllMethodInfo =
