@@ -27,4 +27,8 @@
   <ItemGroup>
     <PackageReference Include="FaunaDB.Client" Version="1.2.0" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Properties\" />
+  </ItemGroup>
 </Project>
