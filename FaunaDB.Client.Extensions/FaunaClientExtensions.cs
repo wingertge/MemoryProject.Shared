@@ -1,4 +1,7 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
 using System.Threading.Tasks;
 using FaunaDB.Client;
 using FaunaDB.Query;
@@ -8,6 +11,41 @@ namespace FaunaDB.Extensions
 {
     public static class FaunaClientExtensions
     {
+        private static Expr[] ObjToArray(object obj)
+        {
+            return obj.GetType().Name.StartsWith("Tuple")
+                ? obj.GetType().GetProperties().Select(a => a.GetValue(obj).ToFaunaObjOrPrimitive()).ToArray()
+                : new[] { obj.ToFaunaObjOrPrimitive() };
+        }
+
+        public static IQueryable<T> Query<T>(this FaunaClient client, Expression<Func<T, bool>> index)
+        {
+            if (!(index.Body is BinaryExpression binary)) throw new ArgumentException("Index selector must be ==.");
+
+            var constant = binary.Left is ConstantExpression constExp ? constExp : (ConstantExpression) binary.Right;
+            var indexSelector = binary.Right is MemberExpression mExp ? mExp : (MemberExpression)binary.Left;
+            var propInfo = indexSelector.GetPropertyInfo();
+            var indexAttr = propInfo.GetCustomAttribute<IndexedAttribute>();
+            if(indexAttr == null) throw new ArgumentException("Can't use unindexed property as selector!", nameof(index));
+            var args = ObjToArray(constant.Value);
+            var indexName = indexAttr.Name;
+
+            return client.Query<T>(indexName, args);
+        }
+
+        public static IQueryable<T> Query<T>(this FaunaClient client, Expression<Func<T, object>> index,
+            params Expr[] args)
+        {
+            if(!(index.Body is MemberExpression member)) throw new ArgumentException("Index selector must be a member.");
+
+            var propInfo = member.GetPropertyInfo();
+            var indexAttr = propInfo.GetCustomAttribute<IndexedAttribute>();
+            if (indexAttr == null) throw new ArgumentException("Can't use unindexed property as selector!", nameof(index));
+            var indexName = indexAttr.Name;
+
+            return client.Query<T>(indexName, args);
+        }
+
         public static IQueryable<T> Query<T>(this FaunaClient client, string index, params Expr[] args)
         {
             return new FaunaQueryableData<T>(client, Map(Match(Index(index), args), @ref => Language.Get(@ref)));

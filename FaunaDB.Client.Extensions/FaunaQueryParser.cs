@@ -7,6 +7,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using FaunaDB.Query;
 using FaunaDB.Types;
+using static FaunaDB.Query.Language;
 
 namespace FaunaDB.Extensions
 {
@@ -29,67 +30,14 @@ namespace FaunaDB.Extensions
 
             switch (method.Name)
             {
+                case "Where":
+                    current = HandleWhere(args, rest);
+                    break;
                 case "Select":
-                    var arg = args[0] as Expression<Func<string, string>>;
-                    if (arg.Body is MethodCallExpression exp)
-                    {
-                        if (exp.Method.Name == "Concat")
-                        {
-                            
-                        }
-                        var methodInfo = exp.Method;
-                        var attribute = methodInfo.GetCustomAttribute<DbFunctionAttribute>();
-                        if(attribute == null) throw new ArgumentException($"Unknown method {methodInfo.Name} in select statement.", nameof(expr));
-                        var methodName = attribute.Name ?? methodInfo.Name;
-                        var functionRef = Language.Ref(methodName); //Not sure this works, documentation doesn't list it as of yet
-                        var arguments = new List<Expr>();
-                        foreach (var argument in exp.Arguments)
-                        {
-                            switch (argument)
-                            {
-                                case ConstantExpression cexp:
-                                    arguments.Add(cexp.ToFaunaObjOrPrimitive());
-                                    continue;
-                                case MemberExpression mexp:
-                                    var type = arg.Type.GetGenericArguments()[0];
-                                    var info = (PropertyInfo) mexp.Member;
-                                    if (type != info.ReflectedType &&
-                                        !type.IsSubclassOf(info.ReflectedType ?? throw new InvalidOperationException()))
-                                        throw new ArgumentException(
-                                            $"Expresion '{mexp}' refers to a property that is not from type {type}.");
-
-                                    var nameAttr2 = info.GetCustomAttribute<FaunaFieldAttribute>();
-                                    var attrName = typeof(IReferenceType).IsAssignableFrom(type)
-                                        ? nameAttr2?.Name
-                                        : $"data.{nameAttr2?.Name}";
-                                    var memberName = attrName ?? $"data.{info.Name}";
-                                    //TODO: Await further info about UDFs to finish this.
-                                    continue;
-                            }
-                        }
-                        current = Language.Call(functionRef, arguments.ToArray());
-                        break;
-                    }
-                    var propInfo = GetPropertyInfo((dynamic) arg) as PropertyInfo;
-                    var nameAttr = propInfo.GetCustomAttribute<FaunaFieldAttribute>();
-                    var propName = nameAttr?.Name ?? $"data.{propInfo.Name}";
-                    var refAttr = propInfo.GetCustomAttribute<ReferenceAttribute>();
-                    if (refAttr == null)
-                        current = Language.Select(Language.Arr(propName.Split('.').ToExprArray()), rest);
-                    else
-                    {
-                        if (typeof(IEnumerable).IsAssignableFrom(propInfo.PropertyType))
-                            current = Language.Map(
-                                Language.Select(Language.Arr(propName.Split('.').ToExprArray()), rest),
-                                item => Language.Map(item, @ref => Language.Get(@ref)));
-                        else
-                            current = Language.Map(
-                                Language.Select(Language.Arr(propName.Split('.').ToExprArray()), rest),
-                                @ref => Language.Get(@ref));
-                    }
+                    current = HandleSelect(args, rest);
                     break;
                 case "Map":
-                    current = Language.Map(rest, (dynamic) args[0]);
+                    current = Map(rest, (dynamic) args[0]);
                     break;
                 case "Paginate":
                     var fromRef = ((ConstantExpression) args[0]).Value.ToString();
@@ -97,11 +45,11 @@ namespace FaunaDB.Extensions
                     var size = (int) ((ConstantExpression) args[2]).Value;
                     var ts = (DateTime) ((ConstantExpression) args[3]).Value;
                     current = sortDirection == ListSortDirection.Ascending
-                        ? Language.Paginate(rest, ts: Language.Date(ts.ToUnixTimeStamp()), after: fromRef, size: size)
-                        : Language.Paginate(rest, ts: Language.Date(ts.ToUnixTimeStamp()), before: fromRef, size: size);
+                        ? Paginate(rest, ts: Date(ts.ToUnixTimeStamp()), after: fromRef, size: size)
+                        : Paginate(rest, ts: Date(ts.ToUnixTimeStamp()), before: fromRef, size: size);
                     break;
                 case "GetAll":
-                    current = Language.Map(rest, @ref => Language.Get(@ref));
+                    current = Map(rest, @ref => Get(@ref));
                     break;
                 default:
                     throw new ArgumentException($"Unsupported method {method}.");
@@ -110,25 +58,125 @@ namespace FaunaDB.Extensions
             return current;
         }
 
-        private static PropertyInfo GetPropertyInfo<TSource, TProperty>(Expression<Func<TSource, TProperty>> propertyLambda)
+        private static Expr HandleSelect(IReadOnlyList<Expression> args, Expr rest)
         {
-            var type = typeof(TSource);
+            var arg = args[0] as Expression<Func<string, string>>;
+            if (arg.Body is MethodCallExpression exp)
+            {
+                if (exp.Method.Name == "Concat")
+                {
+                    
+                }
+                var methodInfo = exp.Method;
+                var attribute = methodInfo.GetCustomAttribute<DbFunctionAttribute>();
+                if (attribute == null) throw new UnsupportedMethodException(methodInfo.Name);
+                var methodName = attribute.Name ?? methodInfo.Name;
+                var functionRef = Ref(methodName); //Not sure this works, documentation doesn't list it as of yet
+                var arguments = new List<Expr>();
+                foreach (var argument in exp.Arguments)
+                {
+                    switch (argument)
+                    {
+                        case ConstantExpression cexp:
+                            arguments.Add(cexp.ToFaunaObjOrPrimitive());
+                            continue;
+                        case MemberExpression mexp:
+                            var type = arg.Type.GetGenericArguments()[0];
+                            var info = mexp.GetPropertyInfo();
+                            var memberName = info.GetFaunaFieldName();
+                            //TODO: Await further info about UDFs to finish this.
+                            continue;
+                    }
+                }
+                return Call(functionRef, arguments.ToArray());
+            }
+            var propInfo = ((MemberExpression) ((dynamic) arg).Body).GetPropertyInfo();
+            var propName = propInfo.GetFaunaFieldName();
+            var refAttr = propInfo.GetCustomAttribute<ReferenceAttribute>();
+            if (refAttr == null)
+                return Select(Arr(propName.Split('.').ToExprArray()), rest);
 
-            if (!(propertyLambda.Body is MemberExpression member))
-                throw new ArgumentException(
-                    $"Expression '{propertyLambda}' refers to a method, not a property.");
+            if (typeof(IEnumerable).IsAssignableFrom(propInfo.PropertyType))
+                return Map(
+                    Select(Arr(propName.Split('.').ToExprArray()), rest),
+                    item => Map(item, @ref => Get(@ref)));
+            return Map(
+                Select(Arr(propName.Split('.').ToExprArray()), rest),
+                @ref => Get(@ref));
+        }
 
-            var propInfo = member.Member as PropertyInfo;
-            if (propInfo == null)
-                throw new ArgumentException(
-                    $"Expression '{propertyLambda}' refers to a field, not a property.");
+        private static Expr HandleWhere(IReadOnlyList<Expression> args, Expr rest)
+        {
+            var lambda = (dynamic) args[0];
+            var body = (BinaryExpression) lambda.Body;
+            return Filter(rest, a => WalkLambdaExpression(body, ref a));
+        }
 
-            if (type != propInfo.ReflectedType &&
-                !type.IsSubclassOf(propInfo.ReflectedType ?? throw new InvalidOperationException()))
-                throw new ArgumentException(
-                    $"Expresion '{propertyLambda}' refers to a property that is not from type {type}.");
+        private static Expr WalkLambdaExpression(Expression expression, ref Expr lambdaArg)
+        {
+            if (!(expression is BinaryExpression))
+            {
+                switch (expression)
+                {
+                    case UnaryExpression unary:
+                        if(unary.Method.Name != "Not") throw new ArgumentException("Invalid unary operator in boolean clause.");
+                        return Not(WalkLambdaExpression(unary.Operand, ref lambdaArg));
+                    case ConstantExpression constant:
+                        return constant.Value.ToFaunaObjOrPrimitive();
+                    case MemberExpression member:
+                        var propInfo = member.GetPropertyInfo();
+                        var propName = propInfo.GetFaunaFieldName();
+                        return Select(Arr(propName.Split('.').ToExprArray()), lambdaArg);
+                }
+            }
+            var binary = (BinaryExpression) expression;
+            var left = binary.Left;
+            var right = binary.Right;
+            var type = binary.Method;
+            var leftExpr = WalkLambdaExpression(left, ref lambdaArg);
+            var rightExpr = WalkLambdaExpression(right, ref lambdaArg);
 
-            return propInfo;
+            switch (type.Name)
+            {
+                case "Equal":
+                    return EqualsFn(leftExpr, rightExpr);
+                case "NotEqual":
+                    return Not(EqualsFn(leftExpr, rightExpr));
+                case "GreaterThanOrEqual":
+                    return GTE(leftExpr, rightExpr);
+                case "GreaterThan":
+                    return GT(leftExpr, rightExpr);
+                case "LessThan":
+                    return LT(leftExpr, rightExpr);
+                case "LessThanOrEqual":
+                    return LTE(leftExpr, rightExpr);
+                case "Add":
+                case "AddChecked":
+                    return Add(leftExpr, rightExpr);
+                case "Divide":
+                    return Divide(leftExpr, rightExpr);
+                case "Modulo":
+                    return Modulo(leftExpr, rightExpr);
+                case "Multiply":
+                case "MultiplyChecked":
+                    return Multiply(leftExpr, rightExpr);
+                case "Subtract":
+                case "SubtractChecked":
+                    return Subtract(leftExpr, rightExpr);
+
+                case "And":
+                case "AndAlso":
+                    return And(leftExpr, rightExpr);
+                case "Or":
+                case "OrElse":
+                    return Or(leftExpr, rightExpr);
+                case "Power":
+                case "LeftShift":
+                case "RightShift":
+                case "ExclusiveOr":
+                default:
+                    throw new UnsupportedMethodException(type.Name, "Not available in Fauna API");
+            }
         }
     }
 }

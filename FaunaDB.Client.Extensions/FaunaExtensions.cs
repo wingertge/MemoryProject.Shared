@@ -16,6 +16,7 @@ namespace FaunaDB.Extensions
             foreach (var prop in obj.GetType().GetProperties())
             {
                 var propType = prop.PropertyType;
+                if(propType.Name.StartsWith("CompositeIndex")) continue;
                 var propValue = prop.GetValue(obj);
                 var nameAttr = prop.GetCustomAttribute(typeof(FaunaFieldAttribute)) as FaunaFieldAttribute;
                 var propName = nameAttr?.Name?.Replace("data.", "") ?? prop.Name;
