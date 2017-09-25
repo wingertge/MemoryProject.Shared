@@ -12,47 +12,51 @@ namespace FaunaDB.Extensions
 {
     public static class FaunaClientExtensions
     {
-        private static Expr[] ObjToArray(object obj)
+        private static Expr[] ObjToParamsOrSingle(object obj)
         {
             return obj.GetType().Name.StartsWith("Tuple")
                 ? obj.GetType().GetProperties().Select(a => a.GetValue(obj).ToFaunaObjOrPrimitive()).ToArray()
                 : new[] { obj.ToFaunaObjOrPrimitive() };
         }
 
-        public static IQueryable<T> Query<T>(this FaunaClient client, Expression<Func<T, bool>> index)
+        public static IQueryable<T> Query<T>(this FaunaClient client, Expression<Func<T, bool>> selector)
         {
-            if (!(index.Body is BinaryExpression binary)) throw new ArgumentException("Index selector must be ==.");
+            if (!(selector.Body is BinaryExpression binary)) throw new ArgumentException("Index selector must be binary expression.");
 
-            var constant = binary.Left is ConstantExpression constExp ? constExp : (ConstantExpression) binary.Right;
-            var indexSelector = binary.Right is MemberExpression mExp ? mExp : (MemberExpression)binary.Left;
-            var propInfo = indexSelector.GetPropertyInfo();
-            var indexAttr = propInfo.GetCustomAttribute<IndexedAttribute>();
-            if(indexAttr == null) throw new ArgumentException("Can't use unindexed property as selector!", nameof(index));
-            var args = ObjToArray(constant.Value);
-            var indexName = indexAttr.Name;
-
-            return client.Query<T>(indexName, args);
+            return new FaunaQueryableData<T>(client, WalkSelector(binary));
         }
 
-        public static IQueryable<T> Query<T>(this FaunaClient client, params Expression<Func<T, bool>>[] indexes)
+        private static Expr WalkSelector(BinaryExpression expression)
         {
-            var matchExprs = new List<Expr>();
-
-            foreach (var index in indexes)
+            switch (expression.Left)
             {
-                if (!(index.Body is BinaryExpression binary)) throw new ArgumentException("Index selector must be ==.");
+                case BinaryExpression leftExp when expression.Right is BinaryExpression rightExp:
+                    var left = WalkSelector(leftExp);
+                    var right = WalkSelector(rightExp);
 
-                var constant = binary.Left is ConstantExpression constExp ? constExp : (ConstantExpression)binary.Right;
-                var indexSelector = binary.Right is MemberExpression mExp ? mExp : (MemberExpression)binary.Left;
-                var propInfo = indexSelector.GetPropertyInfo();
-                var indexAttr = propInfo.GetCustomAttribute<IndexedAttribute>();
-                if (indexAttr == null) throw new ArgumentException("Can't use unindexed property as selector!", nameof(index));
-                var args = ObjToArray(constant.Value);
-                var indexName = indexAttr.Name;
-                matchExprs.Add(Match(Index(indexName), args));
+                    switch (expression.NodeType)
+                    {
+                        case ExpressionType.Or:
+                        case ExpressionType.OrElse:
+                            return Union(left, right);
+                        case ExpressionType.And:
+                        case ExpressionType.AndAlso:
+                            return Intersection(left, right);
+                        default:
+                            throw new UnsupportedMethodException(expression.NodeType.ToString());
+                    }
+                case MemberExpression _ when expression.Right is ConstantExpression:
+                case ConstantExpression _ when expression.Right is MemberExpression:
+                    var member = expression.Left is MemberExpression mem ? mem : (MemberExpression) expression.Right;
+                    var constant = expression.Right is ConstantExpression con ? con : (ConstantExpression) expression.Left;
+                    var args = ObjToParamsOrSingle(constant.Value);
+                    var indexAttr = member.GetPropertyInfo().GetCustomAttribute<IndexedAttribute>();
+                    if(indexAttr == null) throw new ArgumentException("Can't use unindexed property for selector!");
+                    var indexName = indexAttr.Name;
+                    return Match(Index(indexName), args);
             }
 
-            return new FaunaQueryableData<T>(client, Map(Union(matchExprs.ToArray()), @ref => Language.Get(@ref)));
+            throw new ArgumentException("Invalid format for selector. Has to be tree of index selector operations.");
         }
 
         public static IQueryable<T> Query<T>(this FaunaClient client, Expression<Func<T, object>> index,
