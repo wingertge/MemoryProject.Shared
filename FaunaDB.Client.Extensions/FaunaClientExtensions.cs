@@ -9,12 +9,12 @@ namespace FaunaDB.Extensions
 {
     public static class FaunaClientExtensions
     {
-        public static IFaunaQueryable<T> Query<T>(this FaunaClient client, string index, params Expr[] args)
+        public static IQueryable<T> Query<T>(this FaunaClient client, string index, params Expr[] args)
         {
             return new FaunaQueryableData<T>(client, Match(Index(index), args));
         }
 
-        public static IFaunaQueryable<T> Query<T>(this FaunaClient client, string @ref)
+        public static IQueryable<T> Query<T>(this FaunaClient client, string @ref)
         {
             return new FaunaQueryableData<T>(client, Get(Ref(@ref)));
         }
